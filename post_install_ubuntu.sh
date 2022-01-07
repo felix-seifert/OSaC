@@ -36,6 +36,7 @@ adjust_system_settings() {
 
 
 adjust_folder_structure() {
+	echo "Adjust folder structure"
 	mkdir ~/GitHub
 	echo "file://home/felix-seifert/GitHub" >> ~/.config/gtk-3.0/bookmarks
 	# Symlink to Nextcloud (check location)
@@ -44,6 +45,7 @@ adjust_folder_structure() {
 
 
 add_repositories() {
+	echo "Add software repositories"
 	# Repository for Microsoft fonts
 	sudo add-apt-repository multiverse
 	# Repository for GitHub desktop (might not work because too many requests, PackageCloud)
@@ -68,6 +70,7 @@ install_apt_apps() {
 		less \
 		tree \
 		htop \
+		mlocate \
 		dislocker \
 		github-desktop \
 		git
@@ -136,13 +139,33 @@ set_up_terminal() {
 }
 
 
+set_us_and_german_keyboard() {
+	cat << END > /etc/default/keyboard
+	XKBLAYOUT=us,de
+	XKBVARIANT=,
+	BACKSPACE=guess
+	END
+}
+
+
+adjust_remaining_settings() {
+	echo "Set favorite apps in dock"
+	# Execute `gsettings get org.gnome.shell favorite-apps` to get existing favourites
+	gsettings set org.gnome.shell favorite-apps "['firefox.desktop', 'thunderbird.desktop', 'org.gnome.Nautilus.desktop', 'terminator.desktop', 'github-desktop.desktop']"
+
+	echo "Lock screen when lid is closed"
+	echo "HandleLidSwitch=lock" | sudo tee -a /etc/systemd/logind.conf > /dev/null
+}
+
+
 adjust_system_settings
+adjust_folder_structure
 install_apt_apps
 configure_git
 set_up_terminal
+# For now, set several keyboards manually under Settings > Region & Language > Add Input Source
+# set_us_and_german_keyboard
+adjust_remaining_settings
 
-
-echo "Lock screen when lid is closed"
-echo "HandleLidSwitch=lock" | sudo tee -a /etc/systemd/logind.conf > /dev/null
 
 echo "Please restart session through logout and login"
