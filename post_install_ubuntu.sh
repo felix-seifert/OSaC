@@ -20,6 +20,14 @@ then
 fi
 
 
+##### Manual Todos #####
+# * Set DE and US keyboard
+# * Adjust gnome-tweaks
+# * Add CPU and RAM percentage to top bar (see gnome-tweaks > extensions > system-monitor
+# * Add email accounts, signatures and PGP
+# * Add Browser extensions for KeePassXC (install from within application) and for Mendeley
+
+
 adjust_system_settings() {
 	echo "Turn off automatic brightness"
 	gsettings set org.gnome.settings-daemon.plugins.power ambient-enabled false
@@ -38,7 +46,9 @@ adjust_system_settings() {
 adjust_folder_structure() {
 	echo "Adjust folder structure"
 	mkdir ~/GitHub
-	echo "file://home/felix-seifert/GitHub" >> ~/.config/gtk-3.0/bookmarks
+	echo "file:///home/felix-seifert/GitHub" >> ~/.config/gtk-3.0/bookmarks
+	mkdir -p ~/Dropbox/KTH
+	echo "file:///home/felix-seifert/Dropbox/KTH" >> ~/.config/gtk-3.0/bookmarks
 	# Symlink to Nextcloud (check location)
 	ln -s /run/user/1000/gvfs/dav:host=gohfert.duckdns.org,ssl=true,user=felix-seifert,prefix=%2Fremote.php%2Fwebdav ~/Nextcloud
 }
@@ -48,6 +58,8 @@ add_repositories() {
 	echo "Add software repositories"
 	# Repository for Microsoft fonts
 	sudo add-apt-repository multiverse
+	# Repository for gnome-tweaks
+	sudo add-apt-repository universe
 	# Repository for GitHub desktop (might not work because too many requests, PackageCloud)
 	wget -qO - https://packagecloud.io/shiftkey/desktop/gpgkey | sudo tee /etc/apt/trusted.gpg.d/shiftkey-desktop.asc > /dev/null
 	sudo sh -c 'echo "deb [arch=amd64] https://packagecloud.io/shiftkey/desktop/any/ any main" > /etc/apt/sources.list.d/packagecloud-shiftkey-desktop.list'
@@ -72,8 +84,12 @@ install_apt_apps() {
 		htop \
 		mlocate \
 		dislocker \
-		github-desktop \
-		git
+		gnome-tweaks \
+		gnome-shell-extension \
+		gnome-shell-extension-system-monitor \
+		keepassxc \
+		git \
+		github-desktop
 	# Load latest .deb for github-desktop from https://github.com/shiftkey/desktop/releases if not available
 }
 
@@ -91,7 +107,7 @@ configure_git() {
 }
 
 
-set_up_terminal() {
+set_terminal() {
 	echo "Set up terminal"
 	sudo apt install -y \
 		terminator \
@@ -115,7 +131,7 @@ set_up_terminal() {
 	source ~/.zshrc
 
 	# Copy config for Terminator
-	cat <<- END > ~/.config/terminator/config
+	cat <<- END> ~/.config/terminator/config
         [global_config]
         [keybindings]
         [profiles]
@@ -140,7 +156,7 @@ set_up_terminal() {
 
 
 set_us_and_german_keyboard() {
-	cat << END > /etc/default/keyboard
+	cat << END> /etc/default/keyboard
 	XKBLAYOUT=us,de
 	XKBVARIANT=,
 	BACKSPACE=guess
@@ -148,10 +164,17 @@ set_us_and_german_keyboard() {
 }
 
 
+install_dropbox() {
+	echo "Install Dropbox"
+	cd ~ && wget -O - "https://www.dropbox.com/download?plat=lnx.x86_64" | tar xzf -
+	~/.dropbox-dist/dropboxd
+}
+
+
 adjust_remaining_settings() {
 	echo "Set favorite apps in dock"
 	# Execute `gsettings get org.gnome.shell favorite-apps` to get existing favourites
-	gsettings set org.gnome.shell favorite-apps "['firefox.desktop', 'thunderbird.desktop', 'org.gnome.Nautilus.desktop', 'terminator.desktop', 'github-desktop.desktop']"
+	gsettings set org.gnome.shell favorite-apps "['thunderbird.desktop', 'firefox.desktop', 'org.gnome.Nautilus.desktop', 'terminator.desktop', 'github-desktop.desktop']"
 
 	echo "Lock screen when lid is closed"
 	echo "HandleLidSwitch=lock" | sudo tee -a /etc/systemd/logind.conf > /dev/null
@@ -162,9 +185,10 @@ adjust_system_settings
 adjust_folder_structure
 install_apt_apps
 configure_git
-set_up_terminal
+set_terminal
 # For now, set several keyboards manually under Settings > Region & Language > Add Input Source
 # set_us_and_german_keyboard
+install_dropbox
 adjust_remaining_settings
 
 
