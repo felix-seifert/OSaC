@@ -194,6 +194,19 @@ set_dev_env() {
 }
 
 
+install_meeting_software() {
+	echo "Install meeting software"
+	# Automatically download latest version of Zoom
+	wget https://zoom.us/client/latest/zoom_amd64.deb
+	sudo apt install -y ./zoom_amd64.deb
+
+	echo "Install Google Chrome for MS Teams"
+	# Automatically download latest version of Chrome
+	wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+	sudo dpkg -i google-chrome-stable_current_amd64.deb
+}
+
+
 set_us_and_german_keyboard() {
 	cat << END> /etc/default/keyboard
 	XKBLAYOUT=us,de
@@ -226,6 +239,7 @@ install_apt_apps
 configure_git
 set_terminal
 set_dev_env
+install_meeting_software
 # For now, set several keyboards manually under Settings > Region & Language > Add Input Source
 # set_us_and_german_keyboard
 install_dropbox
