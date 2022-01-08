@@ -63,6 +63,8 @@ add_repositories() {
 	# Repository for GitHub desktop (might not work because too many requests, PackageCloud)
 	wget -qO - https://packagecloud.io/shiftkey/desktop/gpgkey | sudo tee /etc/apt/trusted.gpg.d/shiftkey-desktop.asc > /dev/null
 	sudo sh -c 'echo "deb [arch=amd64] https://packagecloud.io/shiftkey/desktop/any/ any main" > /etc/apt/sources.list.d/packagecloud-shiftkey-desktop.list'
+	# Repository for OpenJDK
+	sudo add-apt-repository -y ppa:openjdk-r/ppa
 }
 
 
@@ -155,6 +157,43 @@ set_terminal() {
 }
 
 
+set_dev_env() {
+	echo "Set up development environment with Java und jEnv"
+	sudo apt install -y \
+		openjdk-11-jdk \
+		openjdk-17-jdk
+	# Download current GraalVM version (consider to update)
+	wget https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-21.3.0/graalvm-ce-java17-linux-amd64-21.3.0.tar.gz
+	sudo tar -xvzf graalvm-ce-java17-linux-amd64-21.3.0.tar.gz
+
+	# Install and initialise jEnv
+	git clone https://github.com/jenv/jenv.git ~/.jenv
+	echo 'export PATH="$HOME/.jenv/bin:$PATH"' >> ~/.zshrc
+	echo 'eval "$(jenv init -)"' >> ~/.zshrc
+	source ~/.zshrc
+	jenv add /usr/lib/jvm/java-17-openjdk-amd64
+	jenv add /usr/lib/jvm/java-11-openjdk-amd64
+	jenv add /usr/lib/jvm/graalvm-ce-java17-21.3.0
+	jenv enable-plugin export
+	jenv global graalvm64-17.0.1
+	gu install native-image
+
+	# Install Maven directly (consider to update)
+	wget https://dlcdn.apache.org/maven/maven-3/3.8.4/binaries/apache-maven-3.8.4-bin.tar.gz
+	sudo tar xf apache-maven-3.8.4-bin.tar.gz -C /opt
+	cat <<- END> /etc/profile.d/maven.sh
+	export MAVEN_HOME=/opt/apache-maven-3.8.4
+	export M3_HOME=/opt/apache-maven-3.8.4
+	export PATH=/opt/apache-maven-3.8.4/bin:${PATH}
+	END
+	sudo chmod +x /etc/profile.d/maven.sh
+	source /etc/profile.d/maven.sh
+
+	# Install IntelliJ IDEA from snap to receive updates
+	sudo snap install intellij-idea-ultimate --classic
+}
+
+
 set_us_and_german_keyboard() {
 	cat << END> /etc/default/keyboard
 	XKBLAYOUT=us,de
@@ -186,6 +225,7 @@ adjust_folder_structure
 install_apt_apps
 configure_git
 set_terminal
+set_dev_env
 # For now, set several keyboards manually under Settings > Region & Language > Add Input Source
 # set_us_and_german_keyboard
 install_dropbox
