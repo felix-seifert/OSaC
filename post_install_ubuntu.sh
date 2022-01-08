@@ -32,6 +32,9 @@ adjust_system_settings() {
 	echo "Turn off automatic brightness"
 	gsettings set org.gnome.settings-daemon.plugins.power ambient-enabled false
 
+	echo "Set screen blanking in seconds"
+	gsettings set org.gnome.desktop.session idle-delay 600
+
 	echo "Change to dark mode"
 	gsettings set org.gnome.desktop.interface gtk-theme "Yaru-dark"
 
@@ -65,6 +68,9 @@ add_repositories() {
 	sudo sh -c 'echo "deb [arch=amd64] https://packagecloud.io/shiftkey/desktop/any/ any main" > /etc/apt/sources.list.d/packagecloud-shiftkey-desktop.list'
 	# Repository for OpenJDK
 	sudo add-apt-repository -y ppa:openjdk-r/ppa
+	# Repository for Spotify
+	curl -sS https://download.spotify.com/debian/pubkey_5E3C45D7B312C643.gpg | sudo apt-key add -
+	echo "deb http://repository.spotify.com stable non-free" | sudo tee /etc/apt/sources.list.d/spotify.list
 }
 
 
@@ -76,7 +82,7 @@ install_apt_apps() {
 	sudo apt install -y ttf-mscorefonts-installer
 	sudo fc-cache -f -v
 
-	echo "Install basic apps"
+	echo "Install apt apps"
 	sudo apt install  -y \
 		vim \
 		curl \
@@ -90,6 +96,14 @@ install_apt_apps() {
 		gnome-shell-extension \
 		gnome-shell-extension-system-monitor \
 		keepassxc \
+		vlc \
+		gimp \
+		filezilla \
+		pdftk \
+		xournal \
+		pdfarranger \
+		calibre \
+		spotify-client \
 		git \
 		github-desktop
 	# Load latest .deb for github-desktop from https://github.com/shiftkey/desktop/releases if not available
