@@ -5,14 +5,7 @@ if [[ $EUID -ne 0 ]]; then
 	exit 1
 fi
 
-read -p "Did you already set up the WiFi connection? " -n 1 -r
-echo 
-if [[ ! $REPLY =~ ^[Yy]$ ]]
-then
-    exit 1
-fi
-
-read -p "Did you already connect to your Nextcloud instance? " -n 1 -r
+read -p "Did you already set up the internet connection? " -n 1 -r
 echo 
 if [[ ! $REPLY =~ ^[Yy]$ ]]
 then
@@ -52,8 +45,6 @@ adjust_folder_structure() {
 	echo "file:///home/felix-seifert/GitHub" >> ~/.config/gtk-3.0/bookmarks
 	mkdir -p ~/Dropbox/KTH
 	echo "file:///home/felix-seifert/Dropbox/KTH" >> ~/.config/gtk-3.0/bookmarks
-	# Symlink to Nextcloud (check location)
-	ln -s /run/user/1000/gvfs/dav:host=gohfert.duckdns.org,ssl=true,user=felix-seifert,prefix=%2Fremote.php%2Fwebdav ~/Nextcloud
 }
 
 
