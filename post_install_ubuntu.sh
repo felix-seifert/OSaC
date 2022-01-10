@@ -62,6 +62,9 @@ add_repositories() {
 	# Repository for Spotify
 	curl -sS https://download.spotify.com/debian/pubkey_5E3C45D7B312C643.gpg | sudo apt-key add -
 	echo "deb http://repository.spotify.com stable non-free" | sudo tee /etc/apt/sources.list.d/spotify.list
+	# Repository for Vagrant
+	curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+	sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
 }
 
 
@@ -86,6 +89,8 @@ install_apt_apps() {
 		gnome-tweaks \
 		gnome-shell-extension \
 		gnome-shell-extension-system-monitor \
+		virtualbox \
+		vagrant \
 		keepassxc \
 		vlc \
 		gimp \
@@ -114,6 +119,17 @@ configure_git() {
 }
 
 
+install_docker() {
+        echo "Install Docker and Docker Compose"
+        curl -fsSL https://get.docker.com -o get-docker.sh
+        sh ./get-docker.sh
+
+        # Install Docker Compose directly from website (consider to update)
+        sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        sudo chmod +x /usr/local/bin/docker-compose
+}
+
+
 set_terminal() {
 	echo "Set up terminal"
 	sudo apt install -y \
@@ -133,7 +149,7 @@ set_terminal() {
 	git clone https://github.com/zsh-users/zsh-autosuggestions.git $ZSH_CUSTOM/plugins/zsh-autosuggestions
 	git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $ZSH_CUSTOM/plugins/zsh-syntax-highlighting
 	# Add plugins by replacing standard plugins in .zshrc
-	sed -i 's/plugins=(git)/plugins=(git zsh-autosuggestions zsh-syntax-highlighting)/' ~/.zshrc
+	sed -i 's/plugins=(git)/plugins=(git zsh-autosuggestions zsh-syntax-highlighting docker docker-compose)/' ~/.zshrc
 
 	source ~/.zshrc
 
@@ -162,39 +178,57 @@ set_terminal() {
 }
 
 
+install_java() {
+        echo "Install several Java versions and jEnv"
+
+        sudo apt install -y \
+                openjdk-11-jdk \
+                openjdk-17-jdk
+        # Download current GraalVM version (consider to update)
+        wget https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-21.3.0/graalvm-ce-java17-linux-amd64-21.3.0.tar.gz
+        sudo tar -xvzf graalvm-ce-java17-linux-amd64-21.3.0.tar.gz
+
+        # Install and initialise jEnv
+        git clone https://github.com/jenv/jenv.git ~/.jenv
+        echo 'export PATH="$HOME/.jenv/bin:$PATH"' >> ~/.zshrc
+        echo 'eval "$(jenv init -)"' >> ~/.zshrc
+        source ~/.zshrc
+        jenv add /usr/lib/jvm/java-17-openjdk-amd64
+        jenv add /usr/lib/jvm/java-11-openjdk-amd64
+        jenv add /usr/lib/jvm/graalvm-ce-java17-21.3.0
+        jenv enable-plugin export
+        jenv global graalvm64-17.0.1
+
+	# Install native-image function of GraalVM
+        gu install native-image
+}
+
+
+install_maven() {
+	echo "Install package manager Maven"
+
+        # Install Maven directly (consider to update)
+        wget https://dlcdn.apache.org/maven/maven-3/3.8.4/binaries/apache-maven-3.8.4-bin.tar.gz
+        sudo tar xf apache-maven-3.8.4-bin.tar.gz -C /opt
+
+	# Create script to set Maven environment variables
+        cat <<- END> /etc/profile.d/maven.sh
+        export MAVEN_HOME=/opt/apache-maven-3.8.4
+        export M3_HOME=/opt/apache-maven-3.8.4
+        export PATH=/opt/apache-maven-3.8.4/bin:${PATH}
+        END
+        sudo chmod +x /etc/profile.d/maven.sh
+        source /etc/profile.d/maven.sh
+}
+
+
 set_dev_env() {
-	echo "Set up development environment with Java und jEnv"
-	sudo apt install -y \
-		openjdk-11-jdk \
-		openjdk-17-jdk
-	# Download current GraalVM version (consider to update)
-	wget https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-21.3.0/graalvm-ce-java17-linux-amd64-21.3.0.tar.gz
-	sudo tar -xvzf graalvm-ce-java17-linux-amd64-21.3.0.tar.gz
+	echo "Set up development environment"
 
-	# Install and initialise jEnv
-	git clone https://github.com/jenv/jenv.git ~/.jenv
-	echo 'export PATH="$HOME/.jenv/bin:$PATH"' >> ~/.zshrc
-	echo 'eval "$(jenv init -)"' >> ~/.zshrc
-	source ~/.zshrc
-	jenv add /usr/lib/jvm/java-17-openjdk-amd64
-	jenv add /usr/lib/jvm/java-11-openjdk-amd64
-	jenv add /usr/lib/jvm/graalvm-ce-java17-21.3.0
-	jenv enable-plugin export
-	jenv global graalvm64-17.0.1
-	gu install native-image
+	install_java
+	install_maven
 
-	# Install Maven directly (consider to update)
-	wget https://dlcdn.apache.org/maven/maven-3/3.8.4/binaries/apache-maven-3.8.4-bin.tar.gz
-	sudo tar xf apache-maven-3.8.4-bin.tar.gz -C /opt
-	cat <<- END> /etc/profile.d/maven.sh
-	export MAVEN_HOME=/opt/apache-maven-3.8.4
-	export M3_HOME=/opt/apache-maven-3.8.4
-	export PATH=/opt/apache-maven-3.8.4/bin:${PATH}
-	END
-	sudo chmod +x /etc/profile.d/maven.sh
-	source /etc/profile.d/maven.sh
-
-	# Install IntelliJ IDEA from snap to receive updates
+	echo "Install IntelliJ IDEA from snap to receive updates"
 	sudo snap install intellij-idea-ultimate --classic
 }
 
