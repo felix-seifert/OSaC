@@ -87,7 +87,7 @@ install_apt_apps() {
 		mlocate \
 		dislocker \
 		gnome-tweaks \
-		gnome-shell-extension \
+		gnome-shell-extensions \
 		gnome-shell-extension-system-monitor \
 		virtualbox \
 		vagrant \
@@ -99,6 +99,7 @@ install_apt_apps() {
 		xournal \
 		pdfarranger \
 		calibre \
+		anki \
 		spotify-client \
 		git \
 		github-desktop
@@ -233,7 +234,10 @@ set_dev_env() {
 }
 
 
-install_meeting_software() {
+install_other_software() {
+        echo "Install note-taking app Joplin"
+        wget -O - https://raw.githubusercontent.com/laurent22/joplin/dev/Joplin_install_and_update.sh | bash
+
 	echo "Install meeting software"
 	# Automatically download latest version of Zoom
 	wget https://zoom.us/client/latest/zoom_amd64.deb
@@ -278,7 +282,7 @@ install_apt_apps
 configure_git
 set_terminal
 set_dev_env
-install_meeting_software
+install_other_software
 # For now, set several keyboards manually under Settings > Region & Language > Add Input Source
 # set_us_and_german_keyboard
 install_dropbox
