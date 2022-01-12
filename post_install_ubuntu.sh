@@ -117,6 +117,10 @@ configure_git() {
 	echo "Enter global Git email address: "
 	read GIT_EMAIL
 	git config --global user.email "${GIT_EMAIL}"
+
+	echo "Add GitAlias for shorter commands"
+	curl https://raw.githubusercontent.com/GitAlias/gitalias/main/gitalias.txt -o ~/.gitalias
+	git config --global include.path ~/.gitalias
 }
 
 
