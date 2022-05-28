@@ -190,8 +190,8 @@ install_java() {
                 openjdk-11-jdk \
                 openjdk-17-jdk
         # Download current GraalVM version (consider to update)
-        wget https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-21.3.0/graalvm-ce-java17-linux-amd64-21.3.0.tar.gz
-        sudo tar -xvzf graalvm-ce-java17-linux-amd64-21.3.0.tar.gz
+        wget https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-22.1.0/graalvm-ce-java17-linux-amd64-22.1.0.tar.gz
+        sudo tar -xvzf graalvm-ce-java17-linux-amd64-22.1.0.tar.gz --directory=/usr/lib/jvm/graalvm-ce-java17-22.1.0
 
         # Install and initialise jEnv
         git clone https://github.com/jenv/jenv.git ~/.jenv
@@ -200,9 +200,9 @@ install_java() {
         source ~/.zshrc
         jenv add /usr/lib/jvm/java-17-openjdk-amd64
         jenv add /usr/lib/jvm/java-11-openjdk-amd64
-        jenv add /usr/lib/jvm/graalvm-ce-java17-21.3.0
+        jenv add /usr/lib/jvm/graalvm-ce-java17-22.1.0
         jenv enable-plugin export
-        jenv global graalvm64-17.0.1
+        jenv global graalvm64-17.0.3
 
 	# Install native-image function of GraalVM
         gu install native-image
