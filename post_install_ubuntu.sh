@@ -55,8 +55,8 @@ add_repositories() {
 	# Repository for gnome-tweaks
 	sudo add-apt-repository universe
 	# Repository for GitHub desktop (might not work because too many requests, PackageCloud)
-	wget -qO - https://packagecloud.io/shiftkey/desktop/gpgkey | sudo tee /etc/apt/trusted.gpg.d/shiftkey-desktop.asc > /dev/null
-	sudo sh -c 'echo "deb [arch=amd64] https://packagecloud.io/shiftkey/desktop/any/ any main" > /etc/apt/sources.list.d/packagecloud-shiftkey-desktop.list'
+	# wget -qO - https://packagecloud.io/shiftkey/desktop/gpgkey | sudo tee /etc/apt/trusted.gpg.d/shiftkey-desktop.asc > /dev/null
+	# sudo sh -c 'echo "deb [arch=amd64] https://packagecloud.io/shiftkey/desktop/any/ any main" > /etc/apt/sources.list.d/packagecloud-shiftkey-desktop.list'
 	# Repository for OpenJDK
 	sudo add-apt-repository -y ppa:openjdk-r/ppa
 	# Repository for Spotify
@@ -101,8 +101,8 @@ install_apt_apps() {
 		calibre \
 		anki \
 		spotify-client \
-		git \
-		github-desktop
+		git
+	#	github-desktop
 	# Load latest .deb for github-desktop from https://github.com/shiftkey/desktop/releases if not available
 }
 
